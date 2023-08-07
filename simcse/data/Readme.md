@@ -1,1 +1,1 @@
-- Directory where  `pos_data.csv` and `neg_data.csv` exist
+- Directory where  `simcse_data.csv` and `c2e2_data.csv` exist
