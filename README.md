@@ -56,7 +56,7 @@ List of the newly processed data.
 
 
 ### Sentence Selection(SS)
-- embedding based similarity
+1. embedding based similarity
     ```
     python ss/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./simcse/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_neg" --model_name="kpfbert_neg_checkpoint.pt"
     ```
