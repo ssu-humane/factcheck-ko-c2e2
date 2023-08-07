@@ -27,7 +27,7 @@ List of the newly processed data.
 You can obtain the KPFBERT-C2E2 checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing)
 
 
-# Inference
+# Sentence Selection(SS)
 
 ### Data
 We used the data provided by the baseline.
@@ -39,8 +39,7 @@ List of the data pulled by the baseline respository.
 - `data/wiki/wiki_docs.json`: Wikipedia documents corresponing to claims in `wiki_claims.json`
 - `dr/dr_results.json`
 
-### Sentence Selection(SS)
-1. embedding based similarity
-    ```
-    python sentence_selection/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./pretrain/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_c2e2" --model_name="kpfbert_c2e2_checkpoint.pt"
-    ```
+
+```
+python sentence_selection/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./pretrain/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_c2e2" --model_name="kpfbert_c2e2_checkpoint.pt"
+```
