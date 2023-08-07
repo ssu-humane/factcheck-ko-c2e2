@@ -3,13 +3,13 @@ import torch
 import torch.nn.functional as F
 
 class Contrastive_Loss(): 
-    def __init__(self, temperature, batch_size, pos_neg):
+    def __init__(self, temperature, batch_size, training_method):
         self.temperature = temperature
         self.batch_size = batch_size
-        self.pos_neg = pos_neg
+        self.training_method = training_method
         
     def __call__(self, out, do_normalize=True):
-        if self.pos_neg == 'pos':
+        if self.training_method == 'simcse':
             if do_normalize:
                 out = F.normalize(out, dim=1)
             batch_size = int(out.shape[0]/2)
