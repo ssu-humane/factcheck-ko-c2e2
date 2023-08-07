@@ -39,13 +39,13 @@ def set_seed(seed): # 모든 seed 설정
         torch.cuda.manual_seed_all(seed)
 
 
-def create_data_loader(df, tokenizer, max_len, batch_size, num_workers, pos_neg):
-    if pos_neg == 'pos':
+def create_data_loader(df, tokenizer, max_len, batch_size, num_workers, training_method):
+    if training_method == 'simcse':
         cd = ContrastiveDataset(
             tokenizer = tokenizer,
             original_texts=df.sentence.to_numpy(),
             max_len=max_len,
-            pos_neg=pos_neg
+            training_method=training_method
         )
     else:
         cd = ContrastiveDataset(
@@ -54,7 +54,7 @@ def create_data_loader(df, tokenizer, max_len, batch_size, num_workers, pos_neg)
             positive_texts=df.positive_candidate.to_numpy(),
             negative_texts=df.negative_candidate.to_numpy(),
             max_len=max_len,
-            pos_neg=pos_neg
+            training_method=training_method
         )
         
     return DataLoader(
@@ -76,7 +76,7 @@ def main():
                         type=str,
                         help="The input data dir.")
     parser.add_argument("--input_df",
-                        default="pos_data.csv",
+                        default="simcse_data.csv",
                         type=str,
                         help="The input data.")
     parser.add_argument("--checkpoints_dir",
@@ -104,8 +104,8 @@ def main():
                         default="kobert",
                         type=str,
                         help='Set this as "koelectra" if want to use KoElectra model (https://github.com/monologg/KoELECTRA).')
-    parser.add_argument('--pos_neg',
-                        default="pos",
+    parser.add_argument('--training_method',
+                        default="c2e2",
                         type=str,
                         help='supervised learning or unsupervised learning')
     parser.add_argument('--epoch',
@@ -148,13 +148,13 @@ def main():
     torch.manual_seed(123)
 
     # model select
-    if args.model == "koelectra" or args.model == "koelectra_neg":
+    if args.model == "koelectra_simcse" or args.model == "koelectra_c2e2":
         tokenizer = ElectraTokenizer.from_pretrained("monologg/koelectra-base-v3-discriminator")
         encoder = ElectraModel.from_pretrained("monologg/koelectra-base-v3-discriminator")
-    elif args.model == "kobert" or args.model == "kobert_neg":
+    elif args.model == "kobert_simcse" or args.model == "kobert_c2e2":
         tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
         encoder = BertModel.from_pretrained('skt/kobert-base-v1')
-    elif args.model == "kpfbert" or args.model == "kpfbert_neg":
+    elif args.model == "kpfbert_simcse" or args.model == "kpfbert_c2e2":
         tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
         encoder = BertModel.from_pretrained("jinmang2/kpfbert", add_pooling_layer=False)
     
@@ -166,11 +166,11 @@ def main():
     batch_size = batch_size * torch.cuda.device_count()
     num_workers=args.num_workers
     epochs = args.epoch
-    pos_neg = args.pos_neg
+    training_method = args.training_method
     temperature = args.temperature
             
     # Loss_func, Classifier
-    loss_func = Contrastive_Loss(temperature, batch_size, pos_neg)
+    loss_func = Contrastive_Loss(temperature, batch_size, training_method)
     train_loss = []
 
     model = Model(encoder)
@@ -186,8 +186,8 @@ def main():
     train_pair, test_pair = train_test_split(df, test_size=0.2, random_state=RANDOM_SEED)
     valid_pair, test_pair = train_test_split(test_pair, test_size=0.5, random_state=RANDOM_SEED)
 
-    train_data_loader = create_data_loader(train_pair, tokenizer, MAX_LEN, batch_size, num_workers, pos_neg)
-    valid_data_loader = create_data_loader(valid_pair, tokenizer, MAX_LEN, batch_size, num_workers, pos_neg)
+    train_data_loader = create_data_loader(train_pair, tokenizer, MAX_LEN, batch_size, num_workers, training_method)
+    valid_data_loader = create_data_loader(valid_pair, tokenizer, MAX_LEN, batch_size, num_workers, training_method)
     
     # Early_stopping
     early_stopping = EarlyStopping(patience = args.early_stop_patience, path = args.checkpoints_dir + args.model + '_checkpoint.pt' )
@@ -206,7 +206,7 @@ def main():
         tbar1 = tqdm(train_data_loader)
 
         model.train()
-        if args.pos_neg == 'neg': # C2E2 Training 
+        if args.training_method == 'c2e2': # C2E2 Training 
             for t in tbar1:
                 step += batch_size
                 org_input_ids = t[0]['input_ids']
