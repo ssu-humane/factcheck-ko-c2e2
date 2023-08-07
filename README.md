@@ -25,17 +25,17 @@ List of the newly processed data.
 1. KpfBERT - Supervised SimCSE
     ```
     cd c2e2
-    python ./train.py --input_df="c2e2_data.csv" --max_length=512 --model="kpfbert_neg" --pos_neg="c2e2"
+    python ./train.py --input_df="c2e2_data.csv" --max_length=512 --model="kpfbert_c2e2" --pos_neg="c2e2"
     ```
 2. KpfBERT - Unsupervised SimCSE
     ```
     cd c2e2
-    python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert" --pos_neg="simcse"
+    python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert_simcse" --pos_neg="simcse"
     ```
 
 
 ### Sentence Selection(SS)
 1. embedding based similarity
     ```
-    python ss/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./simcse/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_neg" --model_name="kpfbert_neg_checkpoint.pt"
+    python ss/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./simcse/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_c2e2" --model_name="kpfbert_c2e2_checkpoint.pt"
     ```
