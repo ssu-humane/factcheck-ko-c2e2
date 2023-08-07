@@ -7,15 +7,6 @@ The implementation is based on the repository for the baseline implementation: h
 # Training
 
 ### Data
-We used the data provided by the baseline.
-The data can be obtained through the baseline github.
-
-List of the data pulled by the baseline respository.
-- `data/wiki_claims.json`: Human-Annotated Dataset for the Factcheck
-- `data/train_val_test_ids.json`: Lists of claim ids for train/validation/test split
-- `data/wiki/wiki_docs.json`: Wikipedia documents corresponing to claims in `wiki_claims.json`
-- `dr/dr_results.json`
-
 List of the newly processed data.
 - `pretrain/data/c2e2_data.csv`  
 - `pretrain/data/simcse_data.csv`  
@@ -35,6 +26,18 @@ List of the newly processed data.
 
 You can obtain the KPFBERT-C2E2 checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing)
 
+
+# Inference
+
+### Data
+We used the data provided by the baseline.
+The data can be obtained through the baseline github.
+
+List of the data pulled by the baseline respository.
+- `data/wiki_claims.json`: Human-Annotated Dataset for the Factcheck
+- `data/train_val_test_ids.json`: Lists of claim ids for train/validation/test split
+- `data/wiki/wiki_docs.json`: Wikipedia documents corresponing to claims in `wiki_claims.json`
+- `dr/dr_results.json`
 
 ### Sentence Selection(SS)
 1. embedding based similarity
