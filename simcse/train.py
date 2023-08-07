@@ -169,7 +169,7 @@ def main():
     pos_neg = args.pos_neg
     temperature = args.temperature
             
-    # Loss_func, Clssifier
+    # Loss_func, Classifier
     loss_func = Contrastive_Loss(temperature, batch_size, pos_neg)
     train_loss = []
 
