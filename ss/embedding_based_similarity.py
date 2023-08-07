@@ -352,19 +352,19 @@ def build_ss_model(args, num_labels=2):
         model = AutoModel.from_pretrained('BM-K/KoSimCSE-bert') 
         return model
     
-    elif args.model == "kosimcse_kobert" or args.model == "kosimcse_kobert_neg":
+    elif args.model == "kosimcse_kobert_simcse" or args.model == "kosimcse_kobert_c2e2":
         model = KoBERT_Encoder(num_labels)
         checkpoint = multi_to_single(args)
         model.load_state_dict(checkpoint)
         return model
 
-    elif args.model == "kosimcse_koelectra" or args.model == "kosimcse_koelectra_neg":       
+    elif args.model == "kosimcse_koelectra_simcse" or args.model == "kosimcse_koelectra_c2e2":       
         model = KoELECTRA_Encoder(num_labels)
         checkpoint = multi_to_single(args)
         model.load_state_dict(checkpoint)
         return model
 
-    elif args.model == "kosimcse_kpfbert" or args.model == "kosimcse_kpfbert_neg":
+    elif args.model == "kosimcse_kpfbert_simcse" or args.model == "kosimcse_kpfbert_c2e2":
         model = KPFBERT_Encoder(num_labels)
         checkpoint = multi_to_single(args)
         model.load_state_dict(checkpoint)
@@ -603,13 +603,13 @@ def main():
     if args.n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
 
-    if args.model == "koelectra" or args.model == "kosimcse_koelectra" or args.model == "kosimcse_koelectra_neg":
+    if args.model == "koelectra" or args.model == "kosimcse_koelectra_simcse" or args.model == "kosimcse_koelectra_c2e2":
         tokenizer = ElectraTokenizerFast.from_pretrained("monologg/koelectra-base-v3-discriminator")
     elif args.model == "kosimcse_skt":
         tokenizer = AutoTokenizer.from_pretrained('BM-K/KoSimCSE-bert')
-    elif args.model == "kosimcse_kobert" or args.model == "kosimcse_kobert_neg":
+    elif args.model == "kosimcse_kobert_simcse" or args.model == "kosimcse_kobert_c2e2":
         tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
-    elif args.model == "kosimcse_kpfbert" or args.model == "kosimcse_kpfbert_neg":
+    elif args.model == "kosimcse_kpfbert_simcse" or args.model == "kosimcse_kpfbert_c2e2":
         tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
     else: # bert-multilingual
         tokenizer = BertTokenizerFast.from_pretrained('bert-base-multilingual-cased', do_lower_case=False)
