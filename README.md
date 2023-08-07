@@ -33,7 +33,8 @@ List of the newly processed data.
     python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert_simcse" --pos_neg="simcse"
     ```
 
-You can obtain the KPFBERT-C2E2 checkpoints [here]()
+- You can obtain the KPFBERT-C2E2 checkpoint [here]()
+
 
 ### Sentence Selection(SS)
 1. embedding based similarity
