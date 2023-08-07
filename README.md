@@ -33,7 +33,7 @@ List of the newly processed data.
     python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert_simcse" --pos_neg="simcse"
     ```
 
-You can obtain the KPFBERT-C2E2 checkpoint [here]()
+You can obtain the KPFBERT-C2E2 checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing)
 
 
 ### Sentence Selection(SS)
