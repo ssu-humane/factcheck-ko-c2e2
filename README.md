@@ -22,14 +22,14 @@ List of the newly processed data.
 
 
 ### C2E2 Pre-Training
-1. KpfBERT - Supervised SimCSE
+1. KPFBERT - C2E2
     ```
-    cd c2e2
+    cd simcse
     python ./train.py --input_df="c2e2_data.csv" --max_length=512 --model="kpfbert_c2e2" --pos_neg="c2e2"
     ```
-2. KpfBERT - Unsupervised SimCSE
+2. KPFBERT - SimCSE
     ```
-    cd c2e2
+    cd simcse
     python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert_simcse" --pos_neg="simcse"
     ```
 
