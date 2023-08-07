@@ -5,15 +5,15 @@ from tqdm.auto import tqdm
 from torch.utils.data import Dataset, DataLoader
 
 class ContrastiveDataset(Dataset):
-    def __init__(self, tokenizer, original_texts, positive_texts=None, negative_texts=None, max_len=50, pos_neg='pos'):
+    def __init__(self, tokenizer, original_texts, positive_texts=None, negative_texts=None, max_len=50, training_method='simcse'):
         self.tokenizer = tokenizer
         self.org = []
         self.pos = []
         self.neg = []
         self.max_len = max_len
-        self.pos_neg = pos_neg
+        self.training_method = training_method
         
-        if self.pos_neg == 'pos':
+        if self.training_method == 'simcse':
             for idx in tqdm(range(len(original_texts))):
                 org = original_texts[idx]
 
@@ -53,7 +53,7 @@ class ContrastiveDataset(Dataset):
         return len(self.org)
     
     def __getitem__(self, idx):
-        if self.pos_neg == 'pos':
+        if self.training_method == 'simcse':
             return self.org[idx] 
         else:
             return self.org[idx], self.pos[idx], self.neg[idx]
