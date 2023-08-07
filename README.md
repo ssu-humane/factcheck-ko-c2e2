@@ -17,19 +17,19 @@ List of the data pulled by the baseline respository.
 - `dr/dr_results.json`
 
 List of the newly processed data.
-- `simcse/data/c2e2_data.csv`  
-- `simcse/data/simcse_data.csv`  
+- `pretrain/data/c2e2_data.csv`  
+- `pretrain/data/simcse_data.csv`  
 
 
 ### C2E2 Pre-Training
 1. KPFBERT - C2E2
     ```
-    cd simcse
+    cd pretrain
     python ./train.py --input_df="c2e2_data.csv" --max_length=512 --model="kpfbert_c2e2" --pos_neg="c2e2"
     ```
 2. KPFBERT - SimCSE
     ```
-    cd simcse
+    cd pretrain
     python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert_simcse" --pos_neg="simcse"
     ```
 
@@ -37,5 +37,5 @@ List of the newly processed data.
 ### Sentence Selection(SS)
 1. embedding based similarity
     ```
-    python ss/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./simcse/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_c2e2" --model_name="kpfbert_c2e2_checkpoint.pt"
+    python sentence_selection/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./pretrain/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_c2e2" --model_name="kpfbert_c2e2_checkpoint.pt"
     ```
