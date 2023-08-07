@@ -15,43 +15,22 @@ List of the data pulled by the baseline respository.
 - `data/train_val_test_ids.json`: Lists of claim ids for train/validation/test split
 - `data/wiki/wiki_docs.json`: Wikipedia documents corresponing to claims in `wiki_claims.json`
 - `dr/dr_results.json`
-- `ss/nei_ss_results.json`
 
 List of the newly processed data.
-- `simcse/data/neg_data.csv`  
-- `simcse/data/pos_data.csv`  
+- `simcse/data/c2e2_data.csv`  
+- `simcse/data/simcse_data.csv`  
 
 
 ### C2E2 Pre-Training
-1. KoBERT - Supervised SimCSE
+1. KpfBERT - Supervised SimCSE
     ```
     cd c2e2
-    python ./train.py --input_df="neg_data.csv" --max_length=512 --model="kobert_neg" --pos_neg="neg"
+    python ./train.py --input_df="c2e2_data.csv" --max_length=512 --model="kpfbert_neg" --pos_neg="c2e2"
     ```
-2. KoBERT - Unsupervised SimcCSE
-    ```
-    cd c2e2
-    python ./train.py --input_df="pos_data.csv" --max_length=512 --model="kobert" --pos_neg="pos"
-    ```
-3. Koelectra - Supervised SimCSE
+2. KpfBERT - Unsupervised SimCSE
     ```
     cd c2e2
-    python ./train.py --input_df="neg_data.csv" --max_length=512 --model="koelectra_neg" --pos_neg="neg"
-    ```
-4. Koelectra - Unsupervised SimCSE
-    ```
-    cd c2e2
-    python ./train.py --input_df="pos_data.csv" --max_length=512 --model="kobert_pos" --pos_neg="pos"
-    ```
-5. KpfBERT - Supervised SimCSE
-    ```
-    cd c2e2
-    python ./train.py --input_df="neg_data.csv" --max_length=512 --model="kpfbert_neg" --pos_neg="neg"
-    ```
-6. KpfBERT - Unsupervised SimCSE
-    ```
-    cd c2e2
-    python ./train.py --input_df="pos_data.csv" --max_length=512 --model="kpfbert" --pos_neg="pos"
+    python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert" --pos_neg="simcse"
     ```
 
 
