@@ -40,7 +40,7 @@ List of the data pulled by the baseline respository.
 - `dr/dr_results.json`
 
 
-Example code for sentence selection
+Example code for sentence selection.
     ```
     python sentence_selection/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./pretrain/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_c2e2" --model_name="kpfbert_c2e2_checkpoint.pt"
     ```
