@@ -1,4 +1,4 @@
-<div align="center">
+<div align="left">
   ### Directory where the data below exist
 
 - `data/wiki_claims.json`: Human-Annotated Dataset for the Factcheck
