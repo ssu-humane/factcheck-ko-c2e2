@@ -21,49 +21,6 @@ List of the newly processed data.
 - `simcse/data/neg_data.csv`  
 - `simcse/data/pos_data.csv`  
 
-### Document Retrieval
-
-1. Document retrieval\
-    We used the baseline code.\
-    Baseline result: 84.18% (recall, entire dataset).
-
-
-### Sentence Selection(SS)
-
-1. Download Wikipedia documents\
-    We should download the Wikipedia documents whose titles are retrieved in DR.
-    It takes more than 70 hours with 50000 claims. So, we used the document data 'wiki_docs.json' provided by the baseline.
-
-
-2. SS - Method 1. sentence pair classification
-    ```
-    chmod +x ./ss_sentence_pair_classification.sh
-    ./ss_sentence_pair_classification.sh
-    ```
-
-3. SS - Method 2. embedding based similarity
-    ```
-    chmod +x ./ss_embedding_based_similarity.sh
-    ./ss_embedding_based_similarity.sh
-    ```
-
-### Recognizing Textual Entailment(RTE)
-
-1. Get NEI SS results\
-    NEI claims don't have gold evidences, thus we need to feed the RTE model with results of Sentence Selection for NEI claims. We used the data provided by the baseline.
-
-
-2. RTE - Method 1. Sentence pair classification
-    ```
-    chmod +x ./rte_sentence_pair_classification.sh
-    ./rte_sentence_pair_classification.sh
-    ```
-
-3. RTE - Method 2. Embedding-based classifier
-    ```
-    chmod +x ./rte_embedding_based_classifier.sh
-    ./rte_embedding_based_classifier.sh
-    ```
 
 ### C2E2 Pre-Training
 1. KoBERT - Supervised SimCSE
@@ -95,4 +52,11 @@ List of the newly processed data.
     ```
     cd c2e2
     python ./train.py --input_df="pos_data.csv" --max_length=512 --model="kpfbert" --pos_neg="pos"
+    ```
+
+
+### Sentence Selection(SS)
+- embedding based similarity
+    ```
+    python ss/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./simcse/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_neg" --model_name="kpfbert_neg_checkpoint.pt"
     ```
