@@ -4,7 +4,7 @@ This code repository includes the implementation of contrastive learning method 
 The implementation is based on the repository for the baseline implementation: https://github.com/hongcheki/factcheck-ko-2021
 
 
-# Training
+## Training
 
 ### Data
 List of the newly processed data.
@@ -27,7 +27,7 @@ List of the newly processed data.
 You can obtain the KPFBERT-C2E2 checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing)
 
 
-# Sentence Selection(SS)
+## Sentence Selection(SS)
 
 ### Data
 We used the data provided by the baseline.
@@ -43,4 +43,15 @@ List of the data pulled by the baseline respository.
 ### Example code for sentence selection
 ```
 python sentence_selection/embedding_based_similarity.py --split="test" --gpu_number=0 --checkpoints_dir="./pretrain/checkpoints/" --max_length=512 --model="kosimcse_kpfbert_c2e2" --model_name="kpfbert_c2e2_checkpoint.pt"
+```
+
+## Reference
+
+```bibtex
+@article{송선영2023팩트체킹,
+  title={자동화 팩트체킹을 위한 대조학습 방법},
+  author={송선영 and 안제준 and 박건우},
+  journal={정보과학회논문지},
+  year={2023}
+}
 ```
