@@ -33,10 +33,10 @@ You can obtain the KPFBERT-C2E2 checkpoint [here](https://drive.google.com/drive
 We used the data provided by the baseline.
 The data can be obtained through the baseline github.
 
-List of the data pulled by the baseline respository.
+List of the data pulled by the baseline repository.
 - `data/wiki_claims.json`: Human-Annotated Dataset for the Factcheck
 - `data/train_val_test_ids.json`: Lists of claim ids for train/validation/test split
-- `data/wiki/wiki_docs.json`: Wikipedia documents corresponing to claims in `wiki_claims.json`
+- `data/wiki/wiki_docs.json`: Wikipedia documents corresponding to claims in `wiki_claims.json`
 - `dr/dr_results.json`
 
 
