@@ -87,52 +87,10 @@ class EarlyStopping:
         
         
         
-        
     
-class KoBERT_Encoder(nn.Module):
+class Encoder(nn.Module):
     def __init__(self, num_cls):
-        super(KoBERT_Encoder, self).__init__()
-        
-        self.dim = 768
-        self.encoder = get_kobert_model()
-        self.hidden = 100
-        self.mlp_projection = nn.Sequential(nn.Linear(self.dim, self.hidden),
-                                           nn.ReLU(),
-                                           nn.Linear(self.hidden, self.hidden, bias=True))
-        
-    def forward(self, input_ids, attention_mask):
-        output = self.encoder(input_ids = torch.tensor(input_ids), attention_mask = torch.tensor(attention_mask))
-        embedding = output['pooler_output']
-        
-        return self.mlp_projection(embedding)
-    
-    
-    
-    
-class KoELECTRA_Encoder(nn.Module):
-    def __init__(self, num_cls):
-        super(KoELECTRA_Encoder, self).__init__()
-        
-        self.dim = 768
-        self.encoder = ElectraModel.from_pretrained('monologg/koelectra-base-v3-discriminator')
-        self.hidden = 100
-        self.mlp_projection = nn.Sequential(nn.Linear(self.dim, self.hidden),
-                                           nn.ReLU(),
-                                           nn.Linear(self.hidden, self.hidden, bias=True))
-        
-    def forward(self, input_ids, attention_mask):
-        output = self.encoder(input_ids = input_ids, attention_mask = attention_mask)
-        full_embedding = output['last_hidden_state']
-        cls_embedding = full_embedding[:,0,:]
-        embedding = cls_embedding
-        
-        return self.mlp_projection(embedding)
-    
-    
-    
-class KPFBERT_Encoder(nn.Module):
-    def __init__(self, num_cls):
-        super(KPFBERT_Encoder, self).__init__()
+        super(Encoder, self).__init__()
         
         self.dim = 768
         self.encoder = BertModel.from_pretrained("jinmang2/kpfbert", add_pooling_layer=False)
