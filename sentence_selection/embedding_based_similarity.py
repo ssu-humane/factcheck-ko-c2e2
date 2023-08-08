@@ -21,10 +21,8 @@ from torch.utils.data import TensorDataset, DataLoader
 from transformers import (
     BertTokenizerFast,
     BertForSequenceClassification,
-    ElectraTokenizerFast,
     ElectraForSequenceClassification,
     AutoModel,
-    AutoTokenizer,
 )
 
 from utils import KoBERT_Encoder, KoELECTRA_Encoder, KPFBERT_Encoder
@@ -325,7 +323,7 @@ def convert_bert_features(args, examples, tokenizer, display_examples=False):
 
 
 def multi_to_single(args):
-    # 대조학습 시 multi gpu를 사용했으나 ss 작업 시 single gpu를 사용
+    # 대조학습 시 multi gpu를 사용했으나 sentence_selection 작업 시 single gpu를 사용
     MODEL_PATH = args.checkpoints_dir + args.model_name
     checkpoint = torch.load(MODEL_PATH, map_location=f"cuda:{args.gpu}")
     for key in list(checkpoint.keys()):
@@ -344,39 +342,11 @@ def multi_to_single(args):
 
 
 def build_ss_model(args, num_labels=2):
-    if args.model == "koelectra":
-        return ElectraForSequenceClassification.from_pretrained("monologg/koelectra-base-v3-discriminator",
-                                                                cache_dir=args.cache_dir, num_labels=num_labels)
+    model = KPFBERT_Encoder(num_labels)
+    checkpoint = multi_to_single(args)
+    model.load_state_dict(checkpoint)
+    return model
     
-    elif args.model == "kosimcse_skt":
-        model = AutoModel.from_pretrained('BM-K/KoSimCSE-bert') 
-        return model
-    
-    elif args.model == "kosimcse_kobert_simcse" or args.model == "kosimcse_kobert_c2e2":
-        model = KoBERT_Encoder(num_labels)
-        checkpoint = multi_to_single(args)
-        model.load_state_dict(checkpoint)
-        return model
-
-    elif args.model == "kosimcse_koelectra_simcse" or args.model == "kosimcse_koelectra_c2e2":       
-        model = KoELECTRA_Encoder(num_labels)
-        checkpoint = multi_to_single(args)
-        model.load_state_dict(checkpoint)
-        return model
-
-    elif args.model == "kosimcse_kpfbert_simcse" or args.model == "kosimcse_kpfbert_c2e2":
-        model = KPFBERT_Encoder(num_labels)
-        checkpoint = multi_to_single(args)
-        model.load_state_dict(checkpoint)
-        return model
-    
-    else:
-        model = BertForSequenceClassification.from_pretrained('bert-base-multilingual-cased',
-                                                              cache_dir=args.cache_dir, num_labels=num_labels)
-        MODEL_PATH = args.checkpoints_dir + args.model_name
-        checkpoint = torch.load(MODEL_PATH, map_location=f"cuda:{args.gpu}")
-        model.load_state_dict(checkpoint["state_dict"])
-        return model    
 
 
     
@@ -423,7 +393,7 @@ def validate(idx_loader, features, model, args):
     for idx in idx_loader:
         idx = idx[0].item()
         doc_claim_features, doc_candidate_features, candidate_count, _, more_than_two = features[idx]
-        doc_losses, doc_similarity = [], []
+        doc_similarity = []
 
         doc_input_ids_claim = torch.LongTensor([x['input_ids'] for x in doc_claim_features])
         doc_input_masks_claim = torch.LongTensor([x['input_masks'] for x in doc_claim_features])
@@ -438,34 +408,15 @@ def validate(idx_loader, features, model, args):
             doc_input_ids_candidate, doc_input_masks_candidate, doc_labels_candidate = batch
 
                     
-            with torch.no_grad():
-                if args.model == "kosimcse_skt":
-                    claim_out = model(
-                        input_ids = doc_input_ids_claim.to(args.gpu),
-                        attention_mask = doc_input_masks_claim.to(args.gpu),
-                    )['pooler_output']
-                    candidate_outs = model(
-                        input_ids = doc_input_ids_candidate.to(args.gpu),
-                        attention_mask = doc_input_masks_candidate.to(args.gpu),
-                    )['pooler_output']
-                elif args.model == "":  # bert-multilingual
-                    claim_out = model(
-                        input_ids = doc_input_ids_claim.to(args.gpu),
-                        attention_mask = doc_input_masks_claim.to(args.gpu),
-                    ).logits
-                    candidate_outs = model(
-                        input_ids = doc_input_ids_candidate.to(args.gpu),
-                        attention_mask = doc_input_masks_candidate.to(args.gpu),
-                    ).logits
-                else:    
-                    claim_out = model(
-                        input_ids = doc_input_ids_claim.to(args.gpu),
-                        attention_mask = doc_input_masks_claim.to(args.gpu),
-                    )
-                    candidate_outs = model(
-                        input_ids = doc_input_ids_candidate.to(args.gpu),
-                        attention_mask = doc_input_masks_candidate.to(args.gpu),
-                    )
+            with torch.no_grad(): 
+                claim_out = model(
+                    input_ids = doc_input_ids_claim.to(args.gpu),
+                    attention_mask = doc_input_masks_claim.to(args.gpu),
+                )
+                candidate_outs = model(
+                    input_ids = doc_input_ids_candidate.to(args.gpu),
+                    attention_mask = doc_input_masks_candidate.to(args.gpu),
+                )
 
                 cos_scores = calculate_similarity(claim_out, candidate_outs, args)
                 doc_similarity.extend(cos_scores)
@@ -535,11 +486,11 @@ def main():
                         type=str,
                         help="The wikipedia corpus dir.")
     parser.add_argument("--temp_dir",
-                        default="./ss/tmp/",
+                        default="./sentence_selection/tmp/",
                         type=str,
                         help="The temp dir where the processed data file will be saved.")
     parser.add_argument("--checkpoints_dir",
-                        default="./ss/pretrained_checkpoints/",
+                        default="./sentence_selection/pretrained_checkpoints/",
                         type=str,
                         help="Where checkpoints will be stored.")
     parser.add_argument("--cache_dir",
@@ -564,14 +515,10 @@ def main():
                         default=False,
                         action='store_true',
                         help='Use small datasets to debug.')
-    parser.add_argument('--model',
-                        default="",
-                        type=str,
-                        help='')
     parser.add_argument('--model_name',
                         default="",
                         type=str,
-                        help='pretrained simcse model')
+                        help='pretrained model')
     parser.add_argument('--gpu_number',
                         default=0,
                         type=int,
@@ -603,17 +550,8 @@ def main():
     if args.n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
 
-    if args.model == "koelectra" or args.model == "kosimcse_koelectra_simcse" or args.model == "kosimcse_koelectra_c2e2":
-        tokenizer = ElectraTokenizerFast.from_pretrained("monologg/koelectra-base-v3-discriminator")
-    elif args.model == "kosimcse_skt":
-        tokenizer = AutoTokenizer.from_pretrained('BM-K/KoSimCSE-bert')
-    elif args.model == "kosimcse_kobert_simcse" or args.model == "kosimcse_kobert_c2e2":
-        tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
-    elif args.model == "kosimcse_kpfbert_simcse" or args.model == "kosimcse_kpfbert_c2e2":
-        tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
-    else: # bert-multilingual
-        tokenizer = BertTokenizerFast.from_pretrained('bert-base-multilingual-cased', do_lower_case=False)
-
+    tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
+ 
     data = load_or_make_data_chunks(args)
     features = convert_bert_features(args, data, tokenizer)
 
