@@ -16,12 +16,12 @@ List of the newly processed data.
 1. KPFBERT - C2E2
     ```
     cd pretrain
-    python ./train.py --input_df="c2e2_data.csv" --max_length=512 --model="kpfbert_c2e2" --pos_neg="c2e2"
+    python ./train.py --input_df="c2e2_data.csv" --pos_neg="c2e2"
     ```
 2. KPFBERT - SimCSE
     ```
     cd pretrain
-    python ./train.py --input_df="simcse_data.csv" --max_length=512 --model="kpfbert_simcse" --pos_neg="simcse"
+    python ./train.py --input_df="simcse_data.csv" --pos_neg="simcse"
     ```
 
 You can obtain the KPFBERT-C2E2 checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing)
