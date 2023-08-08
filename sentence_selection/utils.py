@@ -2,8 +2,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from kobert_transformers import get_kobert_model
-from transformers import ElectraModel, BertModel
+from transformers import BertModel
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
