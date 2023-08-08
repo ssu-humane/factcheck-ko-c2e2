@@ -89,7 +89,7 @@ class EarlyStopping:
         
     
 class Encoder(nn.Module):
-    def __init__(self, num_cls):
+    def __init__(self):
         super(Encoder, self).__init__()
         
         self.dim = 768
