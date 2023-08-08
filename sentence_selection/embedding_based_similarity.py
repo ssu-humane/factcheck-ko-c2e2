@@ -18,16 +18,10 @@ import datetime
 import torch
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
-from transformers import (
-    BertTokenizerFast,
-    BertForSequenceClassification,
-    ElectraForSequenceClassification,
-    AutoModel,
-)
+from transformers import BertTokenizerFast
 
-from utils import KoBERT_Encoder, KoELECTRA_Encoder, KPFBERT_Encoder
+from utils import  Encoder
 from sentence_transformers import util
-from kobert_tokenizer import KoBERTTokenizer
 
 import warnings
 from transformers import logging as trans_logging
@@ -341,8 +335,8 @@ def multi_to_single(args):
 
 
 
-def build_ss_model(args, num_labels=2):
-    model = KPFBERT_Encoder(num_labels)
+def build_ss_model(args):
+    model = Encoder()
     checkpoint = multi_to_single(args)
     model.load_state_dict(checkpoint)
     return model
@@ -354,7 +348,7 @@ def main_worker(gpu, features, args):
     args.gpu = gpu
     torch.cuda.set_device(args.gpu)
 
-    model = build_ss_model(args, num_labels=2)
+    model = build_ss_model(args)
     model = model.to(args.gpu)
 
     idx_dataset = TensorDataset(torch.LongTensor(range(len(features))))  # number of docs in validation sets
