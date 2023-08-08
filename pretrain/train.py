@@ -134,22 +134,22 @@ def main():
     # random seed option
     set_seed(args.seed)
     torch.manual_seed(args.seed)
-
-    # model select
-    tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
-    encoder = BertModel.from_pretrained("jinmang2/kpfbert", add_pooling_layer=False)
     
     args.batch_size = args.batch_size * torch.cuda.device_count()
     
-    # Loss_func, Classifier
+    # Contrastive loss function
     loss_func = Contrastive_Loss(args.temperature, args.batch_size, args.training_method)
     train_loss = []
+
+    # model
+    tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
+    encoder = BertModel.from_pretrained("jinmang2/kpfbert", add_pooling_layer=False)
 
     model = Model(encoder)
     model = nn.DataParallel(model)
     model = model.to(args.device)
     
-    # Optimizer
+    # optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
     optimizer.zero_grad()
     
@@ -158,8 +158,8 @@ def main():
     train_pair, test_pair = train_test_split(df, test_size=0.2, random_state=args.seed)
     valid_pair, test_pair = train_test_split(test_pair, test_size=0.5, random_state=args.seed)
 
-    train_data_loader = create_data_loader(train_pair, tokenizer, args.MAX_LEN, args.batch_size, args.num_workers, args.training_method)
-    valid_data_loader = create_data_loader(valid_pair, tokenizer, args.MAX_LEN, args.batch_size, args.num_workers, args.training_method)
+    train_data_loader = create_data_loader(train_pair, tokenizer, args.max_length, args.batch_size, args.num_workers, args.training_method)
+    valid_data_loader = create_data_loader(valid_pair, tokenizer, args.max_length, args.batch_size, args.num_workers, args.training_method)
     
     # Early_stopping
     early_stopping = EarlyStopping(patience = args.early_stop_patience, path = args.checkpoints_dir + args.model + '_checkpoint.pt' )
