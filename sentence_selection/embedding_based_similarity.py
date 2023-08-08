@@ -20,7 +20,7 @@ import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 from transformers import BertTokenizerFast
 
-from utils import  Encoder
+from utils import Encoder
 from sentence_transformers import util
 
 import warnings
@@ -317,7 +317,7 @@ def convert_bert_features(args, examples, tokenizer, display_examples=False):
 
 
 def multi_to_single(args):
-    # 대조학습 시 multi gpu를 사용했으나 sentence_selection 작업 시 single gpu를 사용
+    # pretrain 시 multi gpu를 사용했으나 sentence_selection 작업 시 single gpu를 사용할 경우 사용
     MODEL_PATH = args.checkpoints_dir + args.model_name
     checkpoint = torch.load(MODEL_PATH, map_location=f"cuda:{args.gpu}")
     for key in list(checkpoint.keys()):
@@ -340,7 +340,6 @@ def build_ss_model(args):
     checkpoint = multi_to_single(args)
     model.load_state_dict(checkpoint)
     return model
-    
 
 
     
