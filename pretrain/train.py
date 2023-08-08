@@ -13,22 +13,16 @@ import argparse
 import csv
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report
-from sklearn.metrics import f1_score
-from kobert_tokenizer import KoBERTTokenizer
-from transformers import BertModel, ElectraModel, ElectraTokenizer, ElectraConfig, BertTokenizer
+from transformers import BertModel, BertTokenizerFast
 
 from tqdm.auto import tqdm
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 
 from ContrastiveDataset import ContrastiveDataset
 from Encoder import Model
 from EarlyStop import EarlyStopping
 from ContrastiveLoss import Contrastive_Loss
 
-# gpu choice
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1" #gpu 선택 
-os.environ['WANDB_CONSOLE'] = 'off'
 
 def set_seed(seed): # 모든 seed 설정 
     n_gpu = torch.cuda.device_count()
@@ -76,17 +70,13 @@ def main():
                         type=str,
                         help="The input data dir.")
     parser.add_argument("--input_df",
-                        default="simcse_data.csv",
+                        default="c2e2_data.csv",
                         type=str,
                         help="The input data.")
     parser.add_argument("--checkpoints_dir",
                         default="./checkpoints/",
                         type=str,
                         help="Where checkpoints will be stored.")
-    parser.add_argument("--pretrained_checkpoints_dir",
-                        default="",
-                        type=str,
-                        help="Where pretrained checkpoints will be stored.")
     parser.add_argument("--batchsize",
                         default=4,
                         type=int,
@@ -96,14 +86,10 @@ def main():
                         type=float,
                         help="The initial learning rate.")
     parser.add_argument("--max_length",
-                        default=50,
+                        default=512,
                         type=int,
                         help="The maximum total input sequence length after tokenized."
                         )
-    parser.add_argument('--model',
-                        default="kobert",
-                        type=str,
-                        help='Set this as "koelectra" if want to use KoElectra model (https://github.com/monologg/KoELECTRA).')
     parser.add_argument('--training_method',
                         default="c2e2",
                         type=str,
@@ -132,62 +118,48 @@ def main():
                         default=0.05,
                         type=float,
                         help="")
-    
+    parser.add_argument('--seed',
+                        default=123,
+                        type=int,
+                        help="")
+        
     args = parser.parse_args()
     
     if not os.path.exists(args.checkpoints_dir):
         os.makedirs(args.checkpoints_dir)
         
-    # cpu, gpu
-    gpu = torch.device('cuda')
-    cpu = torch.device('cpu')
-    
+    # device
+    args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     # random seed option
-    set_seed(123)
-    RANDOM_SEED = 123
-    torch.manual_seed(123)
+    set_seed(args.seed)
+    torch.manual_seed(args.seed)
 
     # model select
-    if args.model == "koelectra_simcse" or args.model == "koelectra_c2e2":
-        tokenizer = ElectraTokenizer.from_pretrained("monologg/koelectra-base-v3-discriminator")
-        encoder = ElectraModel.from_pretrained("monologg/koelectra-base-v3-discriminator")
-    elif args.model == "kobert_simcse" or args.model == "kobert_c2e2":
-        tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
-        encoder = BertModel.from_pretrained('skt/kobert-base-v1')
-    elif args.model == "kpfbert_simcse" or args.model == "kpfbert_c2e2":
-        tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
-        encoder = BertModel.from_pretrained("jinmang2/kpfbert", add_pooling_layer=False)
+    tokenizer = BertTokenizerFast.from_pretrained("jinmang2/kpfbert")
+    encoder = BertModel.from_pretrained("jinmang2/kpfbert", add_pooling_layer=False)
     
-    # detail Information
-    MAX_LEN = args.max_length
-    learning_rate = args.learning_rate
-    weight_decay = args.weight_decay
-    batch_size = args.batchsize
-    batch_size = batch_size * torch.cuda.device_count()
-    num_workers=args.num_workers
-    epochs = args.epoch
-    training_method = args.training_method
-    temperature = args.temperature
-            
+    args.batch_size = args.batch_size * torch.cuda.device_count()
+    
     # Loss_func, Classifier
-    loss_func = Contrastive_Loss(temperature, batch_size, training_method)
+    loss_func = Contrastive_Loss(args.temperature, args.batch_size, args.training_method)
     train_loss = []
 
     model = Model(encoder)
     model = nn.DataParallel(model)
-    model = model.to(gpu)
+    model = model.to(args.device)
     
     # Optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
     optimizer.zero_grad()
     
     # data load
     df = pd.read_csv(args.input_dir + args.input_df)
-    train_pair, test_pair = train_test_split(df, test_size=0.2, random_state=RANDOM_SEED)
-    valid_pair, test_pair = train_test_split(test_pair, test_size=0.5, random_state=RANDOM_SEED)
+    train_pair, test_pair = train_test_split(df, test_size=0.2, random_state=args.seed)
+    valid_pair, test_pair = train_test_split(test_pair, test_size=0.5, random_state=args.seed)
 
-    train_data_loader = create_data_loader(train_pair, tokenizer, MAX_LEN, batch_size, num_workers, training_method)
-    valid_data_loader = create_data_loader(valid_pair, tokenizer, MAX_LEN, batch_size, num_workers, training_method)
+    train_data_loader = create_data_loader(train_pair, tokenizer, args.MAX_LEN, args.batch_size, args.num_workers, args.training_method)
+    valid_data_loader = create_data_loader(valid_pair, tokenizer, args.MAX_LEN, args.batch_size, args.num_workers, args.training_method)
     
     # Early_stopping
     early_stopping = EarlyStopping(patience = args.early_stop_patience, path = args.checkpoints_dir + args.model + '_checkpoint.pt' )
@@ -202,13 +174,13 @@ def main():
 
     # Training 
     print('Start Training')
-    for epoch in range(epochs):
+    for epoch in range(args.epochs):
         tbar1 = tqdm(train_data_loader)
 
         model.train()
         if args.training_method == 'c2e2': # C2E2 Training 
             for t in tbar1:
-                step += batch_size
+                step += args.batch_size
                 org_input_ids = t[0]['input_ids']
                 org_attention_mask = t[0]['attention_mask']
 
@@ -219,7 +191,8 @@ def main():
                 neg_attention_mask = t[2]['attention_mask']
 
                 outputs = model(
-                    input_ids = torch.cat([org_input_ids, pos_input_ids, neg_input_ids]).to(gpu), attention_mask = torch.cat([org_attention_mask, pos_attention_mask, neg_attention_mask]).to(gpu)
+                    input_ids = torch.cat([org_input_ids, pos_input_ids, neg_input_ids]).to(args.device), 
+                    attention_mask = torch.cat([org_attention_mask, pos_attention_mask, neg_attention_mask]).to(args.device)
                 )
 
                 loss = loss_func(outputs)
@@ -252,8 +225,8 @@ def main():
                             neg_attention_mask = v[2]['attention_mask']
 
                             outputs = model(
-                                input_ids = torch.cat([org_input_ids, pos_input_ids, neg_input_ids]).to(gpu),
-                                attention_mask = torch.cat([org_attention_mask, pos_attention_mask, neg_attention_mask]).to(gpu)
+                                input_ids = torch.cat([org_input_ids, pos_input_ids, neg_input_ids]).to(args.device),
+                                attention_mask = torch.cat([org_attention_mask, pos_attention_mask, neg_attention_mask]).to(args.device)
                             )
 
 
@@ -291,17 +264,14 @@ def main():
 
         else: # SimCSE training
             for t in tbar1:
-                step += batch_size
+                step += args.batch_size
 
-                if args.model == 'koelectra' or args.model == 'kpfbert':
-                    org_input_ids = t[0]['input_ids']
-                    org_attention_mask = t[0]['attention_mask']
-                else: # kobert
-                    org_input_ids = t['input_ids']
-                    org_attention_mask = t['attention_mask']
+                org_input_ids = t[0]['input_ids']
+                org_attention_mask = t[0]['attention_mask']
 
                 outputs = model(
-                    input_ids = torch.cat([org_input_ids, org_input_ids]).to(gpu), attention_mask = torch.cat([org_attention_mask, org_attention_mask]).to(gpu)
+                    input_ids = torch.cat([org_input_ids, org_input_ids]).to(args.device), 
+                    attention_mask = torch.cat([org_attention_mask, org_attention_mask]).to(args.device)
                 )
 
                 loss = loss_func(outputs)
@@ -322,15 +292,11 @@ def main():
                     f = open(args.checkpoints_dir + 'loss.csv','a', newline='')
                     with torch.no_grad():
                         for v in valid_data_loader:
-                            if args.model == 'koelectra' or args.model == 'kpfbert':
-                                org_input_ids = v[0]['input_ids']
-                                org_attention_mask = v[0]['attention_mask']
-                            else: # kobert
-                                org_input_ids = t['input_ids']
-                                org_attention_mask = t['attention_mask']
+                            org_input_ids = v[0]['input_ids']
+                            org_attention_mask = v[0]['attention_mask']
 
                             outputs = model(
-                                input_ids = torch.cat([org_input_ids, org_input_ids]).to(gpu), attention_mask = torch.cat([org_attention_mask, org_attention_mask]).to(gpu)
+                                input_ids = torch.cat([org_input_ids, org_input_ids]).to(args.device), attention_mask = torch.cat([org_attention_mask, org_attention_mask]).to(args.device)
                             )
 
                             loss = loss_func(outputs)
