@@ -1,6 +1,6 @@
 # A Contrastive Learning Method for Automated Fact-Checking (C2E2)
 
-This repository includes the implementation of a C2E2 contrastive learning method for a Korean fact-check dataset.
+This repository includes the implementation of the C2E2 contrastive learning method for a Korean fact-check dataset.
 
 ## Data
 
