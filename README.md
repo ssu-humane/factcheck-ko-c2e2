@@ -1,4 +1,4 @@
-# 자동화 팩트체킹을 위한 대조학습 방법 (C2E2)
+# A Contrastive Learning Method for Automated Fact-Checking (C2E2)
 
 This repository includes the implementation of a C2E2 contrastive learning method for a Korean fact-check dataset.
 
@@ -44,6 +44,8 @@ python sentence_selection/embedding_based_similarity.py --split="test" --gpu_num
 ```
 
 ## Reference
+
+For more details on the task and method, please take a look at the paper published in the Journal of KIISE (in Korean).
 
 ```bibtex
 @article{송선영2023팩트체킹,
