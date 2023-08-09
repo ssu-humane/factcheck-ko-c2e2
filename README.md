@@ -30,7 +30,7 @@ The Korean fact-checking dataset can be obtained from [this repository](https://
     cd pretrain
     python ./train.py --input_df="simcse_data.csv" --pos_neg="simcse"
     ```
-- You can obtain the KPFBERT-C2E2 checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing).
+- You can obtain the KPFBERT-C2E2 pretrained checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing).
 
 
 ## Inference (Sentence Selection)
