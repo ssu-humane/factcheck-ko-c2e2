@@ -1,10 +1,11 @@
 # 자동화 팩트체킹을 위한 대조학습 방법 (C2E2)
 
-This code repository includes the implementation of a C2E2 contrastive learning method for a Korean factcheck dataset.
+This code repository includes the implementation of a C2E2 contrastive learning method for a Korean fact-check dataset.
 
 ## Data
 
 ### factcheck-ko
+
 The Korean fact-checking dataset can be obtained from [this repository](https://github.com/hongcheki/factcheck-ko-2021).
 
 - `data/wiki_claims.json`: human-annotated Dataset for the Factcheck
@@ -30,7 +31,10 @@ The Korean fact-checking dataset can be obtained from [this repository](https://
     cd pretrain
     python ./train.py --input_df="simcse_data.csv" --pos_neg="simcse"
     ```
+
+- The backbone model is fixed in our implementation as [KPFBERT](https://github.com/KPFBERT/kpfbert).
 - You can obtain the KPFBERT-C2E2 pretrained checkpoint [here](https://drive.google.com/drive/folders/1zGH8MyC1K6tsbSHh24gEUPwXBThWIEmk?usp=sharing).
+
 
 
 ## Inference (Sentence Selection)
