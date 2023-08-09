@@ -1,6 +1,6 @@
 # 자동화 팩트체킹을 위한 대조학습 방법 (C2E2)
 
-This code repository includes the implementation of a C2E2 contrastive learning method for a Korean fact-check dataset.
+This repository includes the implementation of a C2E2 contrastive learning method for a Korean fact-check dataset.
 
 ## Data
 
